@@ -5,7 +5,7 @@ program fortran_meets_sdl
     implicit none
 
     ! Local variables
-    type(c_ptr) :: window
+    type(c_ptr) :: window, renderer
     type(SDL_Event) :: event
     integer(c_int) :: init_status, running
     character(len=*), parameter :: title = "Fortran Meets SDL"//c_null_char
@@ -27,20 +27,43 @@ program fortran_meets_sdl
         stop
     end if
 
+    print *, "Window created"
+    
+    ! Create renderer
+    renderer = SDL_CreateRenderer(window, C_NULL_PTR)
+    if (.not. c_associated(renderer)) then
+        print *, "Renderer creation failed", get_sdl_error()
+        call SDL_DestroyWindow(window)
+        call SDL_Quit()
+        stop
+    end if
+
+    ! Set draw color (red)
+    init_status = SDL_SetRenderDrawColor(renderer, int(z'FF', c_int8_t), &
+                                                 int(z'FF', c_int8_t), &
+                                                 int(z'FF', c_int8_t), &
+                                                 int(z'FF', c_int8_t))
+
+    print *, "Draw color set"                                             
+
     ! Main loop
     running = 1
-    do while (running == 1)
+    do while (running .eq. 1)
         do while (SDL_PollEvent(event) .ne. 0)
-            write(*, '(Z3)') event%type
-            if (event%type == SDL_QUIT_EVENT) then
-                print *, "Quit event received"
+            if (event%type .eq. SDL_QUIT_EVENT) then
                 running = 0
                 exit
             end if
         end do
+
+        ! Clear screen with current draw color
+        call SDL_RenderClear(renderer)
+        ! Present the rendered frame
+        call SDL_RenderPresent(renderer)
     end do
 
     ! Cleanup
+    call SDL_DestroyRenderer(renderer)
     call SDL_DestroyWindow(window)
     call SDL_Quit()
 
