@@ -11,13 +11,29 @@ module sdl_wrapper
 
     ! SDL Constants
     integer(c_int), parameter :: SDL_INIT_VIDEO = int(z'00000020')
+    integer(c_int), parameter :: SDL_WINDOW_FULLSCREEN = int(1)
     integer(c_int), parameter :: SDL_QUIT_EVENT = int(z'100')
     integer(c_int), parameter :: SDL_RENDERER_ACCELERATED = int(z'02')
+    integer(c_int), parameter :: SDL_KEYDOWN = int(z'300')
+    integer(c_int), parameter :: SDL_KEYUP = int(z'301')
+    integer(c_int), parameter :: SDL_SCANCODE_LEFT = int(1073741904)
+    integer(c_int), parameter :: SDL_SCANCODE_A = int(97)
+    integer(c_int), parameter :: SDL_SCANCODE_RIGHT = int(1073741903)
+    integer(c_int), parameter :: SDL_SCANCODE_D = int(100)
 
     ! SDL Types
     type, bind(C) :: SDL_Event
         integer(c_int) :: type
-        character(c_char) :: padding(124)
+        integer(c_int) :: timestamp
+        integer(c_int) :: windowID
+        integer(c_int) :: which
+        integer(c_int) :: state  ! pressed/released
+        integer(c_int) :: repeat ! non-zero if this is a repeat
+        integer(c_int) :: padding
+        integer(c_int) :: scancode
+        integer(c_int) :: keycode
+        integer(c_int) :: padding2
+        character(kind=c_char) :: padding3(96)
     end type
 
     type, bind(C) :: SDL_FRect ! SDL_FRect is a float version of SDL_Rect
@@ -58,11 +74,18 @@ module sdl_wrapper
         !> @param y The y position of the window.
         !> @param w The width of the window.
         !> @param h The height of the window.
-        function SDL_CreateWindow(title, x, y, w, h) bind(C, name='SDL_CreateWindow')
+        function SDL_CreateWindow(title, w, h, flags) bind(C, name='SDL_CreateWindow')
             import :: c_ptr, c_char, c_int
             character(kind=c_char), dimension(*) :: title
-            integer(c_int), value :: x, y, w, h
+            integer(c_int), value :: w, h, flags
             type(c_ptr) :: SDL_CreateWindow
+        end function
+
+        function SDL_GetWindowSize(window, w, h) bind(C, name='SDL_GetWindowSize')
+            import :: c_ptr, c_int
+            type(c_ptr), value :: window
+            integer(c_int), intent(out) :: w, h
+            integer(c_int) :: SDL_GetWindowSize
         end function
 
         !> @brief Destroy a window.
