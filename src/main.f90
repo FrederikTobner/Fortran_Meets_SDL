@@ -5,8 +5,8 @@ program space_invaders
     implicit none
 
     ! Game constants
-    integer, parameter :: PLAYER_WIDTH = 100
-    integer, parameter :: PLAYER_HEIGHT = 20
+    integer, parameter :: PLAYER_WIDTH = 50
+    integer, parameter :: PLAYER_HEIGHT = 50
     real, parameter :: PLAYER_SPEED = 0.5
     integer, parameter :: BULLET_SIZE = 10
 
@@ -113,9 +113,9 @@ program space_invaders
         call SDL_RenderClear(renderer)
 
         ! Draw player
-        init_status = SDL_SetRenderDrawColor(renderer, int(z'FF', c_int8_t), &
+        init_status = SDL_SetRenderDrawColor(renderer, int(z'00', c_int8_t), &
                                                      int(z'FF', c_int8_t), &
-                                                     int(z'FF', c_int8_t), &
+                                                     int(z'00', c_int8_t), &
                                                      int(z'FF', c_int8_t))
         player_rect%x = player_obj%x
         player_rect%y = player_obj%y
