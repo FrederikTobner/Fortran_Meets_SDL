@@ -9,6 +9,7 @@ program fortran_meets_sdl
     type(SDL_Event) :: event
     integer(c_int) :: init_status, running
     character(len=*), parameter :: title = "Fortran Meets SDL"//c_null_char
+    type(SDL_FRect) :: rectangle = SDL_FRect(750.0, 400.0, 100.0, 100.0)
 
     ! Initialize SDL
     init_status = SDL_Init(SDL_INIT_VIDEO)
@@ -22,7 +23,7 @@ program fortran_meets_sdl
                             1600, 900, &
                             1600, 900)
     if (.not. c_associated(window)) then
-        print *, "Window creation failed"
+        print *, "Window creation failed"//' '//get_sdl_error()
         call SDL_Quit()
         stop
     end if
@@ -32,7 +33,7 @@ program fortran_meets_sdl
     ! Create renderer
     renderer = SDL_CreateRenderer(window, C_NULL_PTR)
     if (.not. c_associated(renderer)) then
-        print *, "Renderer creation failed", get_sdl_error()
+        print *, "Renderer creation failed"//' '//get_sdl_error()
         call SDL_DestroyWindow(window)
         call SDL_Quit()
         stop
@@ -45,7 +46,7 @@ program fortran_meets_sdl
                                                  int(z'FF', c_int8_t))
 
     print *, "Draw color set"                                             
-
+    
     ! Main loop
     running = 1
     do while (running .eq. 1)
@@ -58,6 +59,16 @@ program fortran_meets_sdl
 
         ! Clear screen with current draw color
         call SDL_RenderClear(renderer)
+        ! Draw a rectangle
+        init_status =  SDL_SetRenderDrawColor(renderer, int(z'00', c_int8_t), &
+                                                 int(z'00', c_int8_t), &
+                                                 int(z'00', c_int8_t), &
+                                                 int(z'00', c_int8_t))
+        init_status =  SDL_RenderRect(renderer, c_loc_rect(rectangle))
+        init_status =  SDL_SetRenderDrawColor(renderer, int(z'FF', c_int8_t), &
+                                                 int(z'FF', c_int8_t), &
+                                                 int(z'FF', c_int8_t), &
+                                                 int(z'FF', c_int8_t))
         ! Present the rendered frame
         call SDL_RenderPresent(renderer)
     end do

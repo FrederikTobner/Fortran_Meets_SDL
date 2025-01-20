@@ -20,6 +20,13 @@ module sdl_wrapper
         character(c_char) :: padding(124)
     end type
 
+    type, bind(C) :: SDL_FRect ! SDL_FRect is a float version of SDL_Rect
+        real(c_float) :: x
+        real(c_float) :: y
+        real(c_float) :: w
+        real(c_float) :: h
+    end type
+
     ! SDL Function interfaces
     interface
         !> @brief Initialize SDL.
@@ -53,9 +60,7 @@ module sdl_wrapper
         !> @param h The height of the window.
         function SDL_CreateWindow(title, x, y, w, h) bind(C, name='SDL_CreateWindow')
             import :: c_ptr, c_char, c_int
-            ! The title of the window
             character(kind=c_char), dimension(*) :: title
-            ! The x and y position of the window and the width and height of the window.
             integer(c_int), value :: x, y, w, h
             type(c_ptr) :: SDL_CreateWindow
         end function
@@ -100,6 +105,13 @@ module sdl_wrapper
             integer(c_int) :: SDL_SetRenderDrawColor
         end function
 
+        function SDL_RenderRect(renderer, rect) bind(C, name='SDL_RenderRect')
+            import :: c_ptr, SDL_FRect, c_int
+            type(c_ptr), value :: renderer
+            type(c_ptr), value :: rect
+            integer(c_int) :: SDL_RenderRect
+        end function
+
         !> @brief Clear the current rendering target with the drawing color.
         !> @param renderer The renderer to clear.
         subroutine SDL_RenderClear(renderer) bind(C, name='SDL_RenderClear')
@@ -125,6 +137,13 @@ module sdl_wrapper
     end interface
   
     contains
+     !> @brief Convert SDL_FRect to C pointer
+    function c_loc_rect(rect) result(rect_ptr)
+        type(SDL_FRect), target, intent(in) :: rect
+        type(c_ptr) :: rect_ptr
+        rect_ptr = c_loc(rect)
+    end function
+    
     !> @brief Get the last SDL error message as a string.
     function get_sdl_error()
         use iso_c_binding
