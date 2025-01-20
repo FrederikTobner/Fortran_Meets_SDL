@@ -64,7 +64,7 @@ program fortran_meets_sdl
                                                  int(z'00', c_int8_t), &
                                                  int(z'00', c_int8_t), &
                                                  int(z'00', c_int8_t))
-        init_status =  SDL_RenderRect(renderer, c_loc_rect(rectangle))
+        init_status =  SDL_RenderFillRect(renderer, c_loc_rect(rectangle))
         init_status =  SDL_SetRenderDrawColor(renderer, int(z'FF', c_int8_t), &
                                                  int(z'FF', c_int8_t), &
                                                  int(z'FF', c_int8_t), &

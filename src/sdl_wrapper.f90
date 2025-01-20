@@ -105,8 +105,21 @@ module sdl_wrapper
             integer(c_int) :: SDL_SetRenderDrawColor
         end function
 
+        ! @brief Draw a rectangle on the current rendering target.
+        ! @param renderer The renderer to draw on.
+        ! @param rect The rectangle to draw.
         function SDL_RenderRect(renderer, rect) bind(C, name='SDL_RenderRect')
-            import :: c_ptr, SDL_FRect, c_int
+            import :: c_ptr, c_int
+            type(c_ptr), value :: renderer
+            type(c_ptr), value :: rect
+            integer(c_int) :: SDL_RenderRect
+        end function
+
+        ! @brief Fill a rectangle on the current rendering target with the drawing color.
+        ! @param renderer The renderer to draw on.
+        ! @param rect The rectangle to fill.
+        function SDL_RenderFillRect(renderer, rect) bind(C, name='SDL_RenderFillRect')
+            import :: c_ptr, c_int
             type(c_ptr), value :: renderer
             type(c_ptr), value :: rect
             integer(c_int) :: SDL_RenderRect
