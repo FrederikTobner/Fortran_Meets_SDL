@@ -2,39 +2,17 @@
 program space_invaders
     use sdl_wrapper
     use, intrinsic :: iso_c_binding
+    use game_renderer
+    use game_types
+    use game_state
     implicit none
-
-    ! Game constants
-    integer, parameter :: PLAYER_WIDTH = 50
-    integer, parameter :: PLAYER_HEIGHT = 50
-    real, parameter :: PLAYER_SPEED = 600.0
-    integer, parameter :: BULLET_SIZE = 10
-
-    ! Player type
-    type :: Player
-        real :: x
-        real :: y
-        logical :: moving_left
-        logical :: moving_right
-    end type Player
-
-    ! Bullet type
-    type :: Bullet
-        real :: x
-        real :: y
-    end type Bullet
 
     ! Local variables
     type(c_ptr) :: window, renderer
     type(SDL_Event) :: event
     integer(c_int) :: init_status, running
     character(len=*), parameter :: title = "Space Invaders"//c_null_char
-    type(Player) :: player_obj
-    type(SDL_FRect) :: player_rect
-    integer :: screen_width = 800
-    integer :: screen_height = 600
-    integer(c_int64_t) :: current_time, last_time
-    real :: delta_time
+    type(GameState) :: game
 
     ! Initialize SDL
     init_status = SDL_Init(SDL_INIT_VIDEO)
@@ -61,76 +39,23 @@ program space_invaders
         stop
     end if
 
-    init_status = SDL_GetWindowSize(window, screen_width, SCREEN_HEIGHT)
-    print *, "Window size: ", screen_width, SCREEN_HEIGHT
-
-    ! Initialize player
-    player_obj%x = (screen_width - PLAYER_WIDTH) / 2.0
-    player_obj%y = screen_height - PLAYER_HEIGHT - 10.0
-    player_obj%moving_left = .false.
-    player_obj%moving_right = .false.
+    ! Initialize game state
+    call game%init(window)
 
     ! Main game loop
     running = 1
     do while (running .eq. 1)
-        ! Calculate delta time
-        current_time = SDL_GetTicks()
-        delta_time = (current_time - last_time) / 1000.0  ! Convert to seconds
-        last_time = current_time
         ! Handle events
         do while (SDL_PollEvent(event) .ne. 0)
-            select case (event%type)
-                case (SDL_QUIT_EVENT)
-                    running = 0
-                case (SDL_KEYDOWN)
-                    print *, "Key pressed + ", event%scancode
-                    select case (event%scancode)
-                        case (SDL_SCANCODE_LEFT, SDL_SCANCODE_A)
-                            player_obj%moving_left = .true.
-                        case (SDL_SCANCODE_RIGHT, SDL_SCANCODE_D)
-                            player_obj%moving_right = .true.
-                    end select
-                case (SDL_KEYUP)
-                    print *, "Key released + ", event%scancode
-                    select case (event%scancode)
-                        case (SDL_SCANCODE_LEFT, SDL_SCANCODE_A)
-                            player_obj%moving_left = .false.
-                        case (SDL_SCANCODE_RIGHT, SDL_SCANCODE_D)
-                            player_obj%moving_right = .false.
-                    end select
-            end select
+            call game%handle_input(event, running)
         end do
 
-        ! Update player position
-        if (player_obj%moving_left .and. player_obj%x > 0) then
-            print *, "Moving left"
-            player_obj%x = player_obj%x - PLAYER_SPEED * delta_time
-        end if
-        if (player_obj%moving_right .and. player_obj%x < screen_width - PLAYER_WIDTH) then
-            print *, "Moving right"
-            player_obj%x = player_obj%x + PLAYER_SPEED * delta_time
-        end if
+        ! Update game state
+        call game%update()
 
-        ! Clear screen
-        init_status = SDL_SetRenderDrawColor(renderer, int(z'00', c_int8_t), &
-                                                     int(z'00', c_int8_t), &
-                                                     int(z'00', c_int8_t), &
-                                                     int(z'FF', c_int8_t))
-        call SDL_RenderClear(renderer)
+        ! Render game
+        call render_game(renderer, game)
 
-        ! Draw player
-        init_status = SDL_SetRenderDrawColor(renderer, int(z'00', c_int8_t), &
-                                                     int(z'FF', c_int8_t), &
-                                                     int(z'00', c_int8_t), &
-                                                     int(z'FF', c_int8_t))
-        player_rect%x = player_obj%x
-        player_rect%y = player_obj%y
-        player_rect%w = PLAYER_WIDTH
-        player_rect%h = PLAYER_HEIGHT
-        init_status = SDL_RenderFillRect(renderer, c_loc_rect(player_rect))
-
-        ! Present render
-        call SDL_RenderPresent(renderer)
     end do
 
     ! Cleanup
