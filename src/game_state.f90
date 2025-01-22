@@ -62,10 +62,10 @@ contains
         this%last_time = this%current_time
 
         ! Update player position
-        if (this%player%moving_left .and. this%player%x > 0) then
+        if (this%player%moving_left .and. this%player%x .gt. 0) then
             this%player%x = this%player%x - PLAYER_SPEED * this%delta_time
         end if
-        if (this%player%moving_right .and. this%player%x < this%screen_width - PLAYER_WIDTH) then
+        if (this%player%moving_right .and. this%player%x .lt. this%screen_width - PLAYER_WIDTH) then
             this%player%x = this%player%x + PLAYER_SPEED * this%delta_time
         end if
     end subroutine

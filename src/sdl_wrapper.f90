@@ -76,7 +76,8 @@ module sdl_wrapper
             integer(c_int), value :: ms
         end subroutine
 
-         !> @brief Get the current value of the SDL high resolution counter
+        !> @brief Get the number of milliseconds since SDL library initialization.
+        !> @return Returns an unsigned 64-bit value representing the number of milliseconds since the SDL library initialized.
         function SDL_GetTicks() bind(C, name='SDL_GetTicks')
             import :: c_int64_t
             integer(c_int64_t) :: SDL_GetTicks
