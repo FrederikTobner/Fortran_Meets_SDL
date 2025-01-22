@@ -7,7 +7,7 @@ program space_invaders
     ! Game constants
     integer, parameter :: PLAYER_WIDTH = 50
     integer, parameter :: PLAYER_HEIGHT = 50
-    real, parameter :: PLAYER_SPEED = 0.5
+    real, parameter :: PLAYER_SPEED = 600.0
     integer, parameter :: BULLET_SIZE = 10
 
     ! Player type
@@ -18,7 +18,7 @@ program space_invaders
         logical :: moving_right
     end type Player
 
-    ! Ball type
+    ! Bullet type
     type :: Bullet
         real :: x
         real :: y
@@ -33,10 +33,12 @@ program space_invaders
     type(SDL_FRect) :: player_rect
     integer :: screen_width = 800
     integer :: screen_height = 600
+    integer(c_int64_t) :: current_time, last_time
+    real :: delta_time
 
     ! Initialize SDL
     init_status = SDL_Init(SDL_INIT_VIDEO)
-    if (init_status < 0) then
+    if (init_status .lt. 0) then
         print *, "SDL initialization failed"
         stop
     end if
@@ -70,9 +72,13 @@ program space_invaders
 
     ! Main game loop
     running = 1
-    do while (running == 1)
+    do while (running .eq. 1)
+        ! Calculate delta time
+        current_time = SDL_GetTicks()
+        delta_time = (current_time - last_time) / 1000.0  ! Convert to seconds
+        last_time = current_time
         ! Handle events
-        do while (SDL_PollEvent(event) /= 0)
+        do while (SDL_PollEvent(event) .ne. 0)
             select case (event%type)
                 case (SDL_QUIT_EVENT)
                     running = 0
@@ -98,11 +104,11 @@ program space_invaders
         ! Update player position
         if (player_obj%moving_left .and. player_obj%x > 0) then
             print *, "Moving left"
-            player_obj%x = player_obj%x - PLAYER_SPEED
+            player_obj%x = player_obj%x - PLAYER_SPEED * delta_time
         end if
         if (player_obj%moving_right .and. player_obj%x < screen_width - PLAYER_WIDTH) then
             print *, "Moving right"
-            player_obj%x = player_obj%x + PLAYER_SPEED
+            player_obj%x = player_obj%x + PLAYER_SPEED * delta_time
         end if
 
         ! Clear screen

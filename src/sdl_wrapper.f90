@@ -12,16 +12,23 @@ module sdl_wrapper
     ! SDL Constants
     integer(c_int), parameter :: SDL_INIT_VIDEO = int(z'00000020')
     integer(c_int), parameter :: SDL_WINDOW_FULLSCREEN = int(1)
+    ! SDL Events
     integer(c_int), parameter :: SDL_QUIT_EVENT = int(z'100')
-    integer(c_int), parameter :: SDL_RENDERER_ACCELERATED = int(z'02')
     integer(c_int), parameter :: SDL_KEYDOWN = int(z'300')
     integer(c_int), parameter :: SDL_KEYUP = int(z'301')
+
+    ! SDL Renderer
+    integer(c_int), parameter :: SDL_RENDERER_ACCELERATED = int(z'02')
+    
+    ! SDL Keycodes
     integer(c_int), parameter :: SDL_SCANCODE_LEFT = int(1073741904)
     integer(c_int), parameter :: SDL_SCANCODE_A = int(97)
     integer(c_int), parameter :: SDL_SCANCODE_RIGHT = int(1073741903)
     integer(c_int), parameter :: SDL_SCANCODE_D = int(100)
 
     ! SDL Types
+
+    ! @brief SDL_Event is a union of all event types
     type, bind(C) :: SDL_Event
         integer(c_int) :: type
         integer(c_int) :: timestamp
@@ -36,6 +43,7 @@ module sdl_wrapper
         character(kind=c_char) :: padding3(96)
     end type
 
+    ! @brief SDL_FRect is a float version of SDL_Rect
     type, bind(C) :: SDL_FRect ! SDL_FRect is a float version of SDL_Rect
         real(c_float) :: x
         real(c_float) :: y
@@ -67,6 +75,12 @@ module sdl_wrapper
             import :: c_int
             integer(c_int), value :: ms
         end subroutine
+
+         !> @brief Get the current value of the SDL high resolution counter
+        function SDL_GetTicks() bind(C, name='SDL_GetTicks')
+            import :: c_int64_t
+            integer(c_int64_t) :: SDL_GetTicks
+        end function
 
         !> @brief Create a window.
         !> @param title The title of the window.
@@ -145,7 +159,7 @@ module sdl_wrapper
             import :: c_ptr, c_int
             type(c_ptr), value :: renderer
             type(c_ptr), value :: rect
-            integer(c_int) :: SDL_RenderRect
+            integer(c_int) :: SDL_RenderFillRect
         end function
 
         !> @brief Clear the current rendering target with the drawing color.
@@ -196,7 +210,7 @@ module sdl_wrapper
 
         call c_f_pointer(error_ptr, error_chars, [huge(0)])
         length = 0
-        do while (error_chars(length + 1) /= c_null_char)
+        do while (error_chars(length + 1) .ne. c_null_char)
             length = length + 1
         end do
 
