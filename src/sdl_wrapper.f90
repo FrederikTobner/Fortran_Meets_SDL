@@ -25,6 +25,8 @@ module sdl_wrapper
     integer(c_int), parameter :: SDL_SCANCODE_A = int(97)
     integer(c_int), parameter :: SDL_SCANCODE_RIGHT = int(1073741903)
     integer(c_int), parameter :: SDL_SCANCODE_D = int(100)
+    integer(c_int), parameter :: SDL_SCANCODE_SPACE = int(32)
+
 
     ! SDL Types
 

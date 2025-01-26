@@ -7,6 +7,8 @@ module game_state
 
     type :: GameState
         type(Player) :: player
+        type(Bullet), dimension(MAX_BULLETS) :: bullets
+        integer :: bullet_count = 0
         integer :: screen_width = 800
         integer :: screen_height = 600
         integer(c_int64_t) :: current_time, last_time
@@ -15,6 +17,7 @@ module game_state
         procedure :: init => init_game_state
         procedure :: handle_input => handle_game_input
         procedure :: update => update_game_state
+        procedure :: fire_bullet => fire_bullet
     end type GameState
 
 contains
@@ -37,11 +40,14 @@ contains
             case (SDL_QUIT_EVENT)
                 running = 0
             case (SDL_KEYDOWN)
-                select case (event%scancode)
+                print *, "Keycode: ", event%scancode
+                select case (event%scancode)                   
                     case (SDL_SCANCODE_LEFT, SDL_SCANCODE_A)
                         this%player%moving_left = .true.
                     case (SDL_SCANCODE_RIGHT, SDL_SCANCODE_D)
                         this%player%moving_right = .true.
+                    case (SDL_SCANCODE_SPACE)
+                        call this%fire_bullet()
                 end select
             case (SDL_KEYUP)
                 select case (event%scancode)
@@ -53,8 +59,26 @@ contains
         end select
     end subroutine
 
+    subroutine fire_bullet(this)
+        class(GameState), intent(inout) :: this
+        integer :: i
+
+        print *, "Firing bullet!"
+
+        ! Find first inactive bullet
+        do i = 1, MAX_BULLETS
+            if (.not. this%bullets(i)%active) then
+                this%bullets(i)%active = .true.
+                this%bullets(i)%x = this%player%x + (PLAYER_WIDTH - BULLET_WIDTH) / 2.0
+                this%bullets(i)%y = this%player%y
+                return
+            end if
+        end do
+    end subroutine
+
     subroutine update_game_state(this)
         class(GameState), intent(inout) :: this
+        integer :: i
         
         ! Update delta time
         this%current_time = SDL_GetTicks()
@@ -68,5 +92,17 @@ contains
         if (this%player%moving_right .and. this%player%x .lt. this%screen_width - PLAYER_WIDTH) then
             this%player%x = this%player%x + PLAYER_SPEED * this%delta_time
         end if
+
+        ! Update bullets
+        do i = 1, MAX_BULLETS
+            if (this%bullets(i)%active) then
+                this%bullets(i)%y = this%bullets(i)%y - BULLET_SPEED * this%delta_time
+                
+                ! Deactivate bullets that go off screen
+                if (this%bullets(i)%y + BULLET_HEIGHT < 0) then
+                    this%bullets(i)%active = .false.
+                end if
+            end if
+        end do
     end subroutine
 end module game_state

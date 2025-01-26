@@ -8,6 +8,10 @@ module game_types
     integer, parameter :: PLAYER_HEIGHT = 50
     real(c_double), parameter :: PLAYER_SPEED = 600.0
     integer, parameter :: BULLET_SIZE = 10
+    integer, parameter :: BULLET_WIDTH = 4
+    integer, parameter :: BULLET_HEIGHT = 10
+    real(c_double), parameter :: BULLET_SPEED = 500.0
+    integer, parameter :: MAX_BULLETS = 100
 
     ! Player type
     type :: Player
@@ -23,6 +27,7 @@ module game_types
     type :: Bullet
         real(c_double) :: x
         real(c_double) :: y
+        logical :: active = .false.
     end type Bullet
 
 contains
