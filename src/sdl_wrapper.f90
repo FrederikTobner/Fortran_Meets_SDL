@@ -1,4 +1,3 @@
-! filepath: /D:/Projects/Fortran/Fortran_Meets_SDL/src/sdl_wrapper.f90
 !> @file sdl_wrapper.f90
 !> @brief SDL3 Fortran wrapper module
 !> @details Provides Fortran bindings for SDL3 library functions

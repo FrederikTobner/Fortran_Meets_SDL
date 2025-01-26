@@ -1,4 +1,3 @@
-! filepath: /D:/Projects/Fortran/Fortran_Meets_SDL/main.f90
 program space_invaders
     use sdl_wrapper
     use, intrinsic :: iso_c_binding

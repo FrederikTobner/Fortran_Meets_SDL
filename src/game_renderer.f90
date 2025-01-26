@@ -1,4 +1,3 @@
-! filepath: /D:/Projects/Fortran/Fortran_Meets_SDL/src/game_renderer.f90
 module game_renderer
     use game_types
     use game_state

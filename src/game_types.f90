@@ -1,4 +1,3 @@
-! filepath: /D:/Projects/Fortran/Fortran_Meets_SDL/src/game_types.f90
 module game_types
     use, intrinsic :: iso_c_binding
     implicit none

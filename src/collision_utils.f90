@@ -1,4 +1,3 @@
-! filepath: /D:/Projects/Fortran/Fortran_Meets_SDL/src/collision_utils.f90
 module collision_utils
     use, intrinsic :: iso_c_binding
     implicit none

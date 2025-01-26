@@ -1,4 +1,3 @@
-! filepath: /D:/Projects/Fortran/Fortran_Meets_SDL/src/game_state.f90
 module game_state
     use game_types
     use sdl_wrapper
