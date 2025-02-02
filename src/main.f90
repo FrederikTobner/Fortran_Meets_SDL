@@ -1,3 +1,9 @@
+!> @file main.f90
+!> @brief Main program file for Space Invaders game
+!> @details This file contains the main program logic for the Space Invaders game
+
+!> @program space_invaders
+!> @brief Main program for Space Invaders game
 program space_invaders
     use sdl_wrapper
     use, intrinsic :: iso_c_binding

@@ -1,3 +1,9 @@
+!> @file game_state.f90
+!> @brief Game state module
+!> @details Provides functions for managing the game state
+
+!> @module game_state
+!> @brief Module for managing the game state
 module game_state
     use game_types
     use sdl_wrapper
@@ -15,7 +21,7 @@ module game_state
         real(c_double) :: delta_time
         type(Enemy), dimension(MAX_ENEMIES) :: enemies
         real(c_double) :: spawn_timer = 0.0
-        real(c_double) :: difficulty = 1.0
+        real(c_double) :: difficulty = 0.5
         logical :: game_over = .false.
     contains
         procedure :: init => init_game_state
@@ -28,6 +34,10 @@ module game_state
     end type GameState
 
 contains
+    !> @brief Initialize the game state
+    !> @details Initializes the game state with the provided window
+    !> @param this The game state to initialize
+    !> @param window The SDL window to get the screen size from
     subroutine init_game_state(this, window)
         class(GameState), intent(inout) :: this
         type(c_ptr), intent(in) :: window
@@ -44,6 +54,11 @@ contains
         call this%spawn_enemies()
     end subroutine
 
+    !> @brief Handle game input events
+    !> @details Handles game input events such as player movement and firing bullets
+    !> @param this The game state to handle input for
+    !> @param event The SDL event to handle
+    !> @param running Flag to control game loop
     subroutine handle_game_input(this, event, running)
         class(GameState), intent(inout) :: this
         type(SDL_Event), intent(in) :: event
@@ -53,7 +68,6 @@ contains
             case (SDL_QUIT_EVENT)
                 running = 0
             case (SDL_KEYDOWN)
-                print *, "Keycode: ", event%scancode
                 select case (event%scancode)                   
                     case (SDL_SCANCODE_LEFT, SDL_SCANCODE_A)
                         this%player%moving_left = .true.
@@ -72,11 +86,11 @@ contains
         end select
     end subroutine
 
+    !> @brief Fires a bullet from the current player position
+    !> @param this The game state containing the player and bullets
     subroutine fire_bullet(this)
         class(GameState), intent(inout) :: this
         integer :: i
-
-        print *, "Firing bullet!"
 
         ! Find first inactive bullet
         do i = 1, MAX_BULLETS
@@ -89,6 +103,8 @@ contains
         end do
     end subroutine
 
+    !> @brief Spawns a wave of enemies	
+    !> @param this The game state to spawn enemies in
     subroutine spawn_enemies(this)
         class(GameState), intent(inout) :: this
         integer :: i, count, spawn_count
@@ -117,6 +133,11 @@ contains
         this%difficulty = this%difficulty + DIFFICULTY_INCREASE_RATE
     end subroutine
 
+    !> @brief Generate a random integer between min_val and max_val
+    !> @param this The game state to generate the random number for
+    !> @param min_val The minimum value of the random number
+    !> @param max_val The maximum value of the random number
+    !> @return A random integer between min_val and max_val
     function random_int(this, min_val, max_val) result(rand_int)
         class(GameState), intent(in) :: this
         integer, intent(in) :: min_val, max_val
@@ -127,6 +148,8 @@ contains
         rand_int = min_val + floor(r * (max_val - min_val + 1))
     end function
 
+    !> @brief Update the game state
+    !> @param this The game state to update
     subroutine update_game_state(this)
         class(GameState), intent(inout) :: this
         integer :: i
@@ -188,6 +211,8 @@ contains
         call check_bullet_enemy_collisions(this)
     end subroutine
 
+    !> @brief Check for collisions between bullets and enemies
+    !> @param this The game state to check collisions in
     subroutine check_bullet_enemy_collisions(this)
         class(GameState), intent(inout) :: this
         integer :: i, j

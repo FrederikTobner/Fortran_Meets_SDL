@@ -1,3 +1,9 @@
+!> @file game_renderer.f90
+!> @brief Game rendering module
+!> @details Provides functions for rendering the game state using SDL3
+
+!> @module game_renderer
+!> @brief Module for rendering the game state
 module game_renderer
     use game_types
     use game_state
@@ -6,6 +12,10 @@ module game_renderer
     implicit none
 
 contains
+    !> @brief Render the game state
+    !> @details Renders the game state using the provided renderer
+    !> @param renderer The SDL renderer to use for rendering
+    !> @param game The game state to render
     subroutine render_game(renderer, game)
         type(c_ptr), intent(in) :: renderer
         type(GameState), intent(in) :: game

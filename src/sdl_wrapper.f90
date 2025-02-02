@@ -10,7 +10,8 @@ module sdl_wrapper
 
     ! SDL Constants
     integer(c_int), parameter :: SDL_INIT_VIDEO = int(z'00000020')
-    integer(c_int), parameter :: SDL_WINDOW_FULLSCREEN = int(1)
+    integer(c_int), parameter :: SDL_WINDOW_FULLSCREEN = int(z'01')
+    
     ! SDL Events
     integer(c_int), parameter :: SDL_QUIT_EVENT = int(z'100')
     integer(c_int), parameter :: SDL_KEYDOWN = int(z'300')
@@ -20,16 +21,16 @@ module sdl_wrapper
     integer(c_int), parameter :: SDL_RENDERER_ACCELERATED = int(z'02')
     
     ! SDL Keycodes
-    integer(c_int), parameter :: SDL_SCANCODE_LEFT = int(1073741904)
-    integer(c_int), parameter :: SDL_SCANCODE_A = int(97)
-    integer(c_int), parameter :: SDL_SCANCODE_RIGHT = int(1073741903)
-    integer(c_int), parameter :: SDL_SCANCODE_D = int(100)
-    integer(c_int), parameter :: SDL_SCANCODE_SPACE = int(32)
+    integer(c_int), parameter :: SDL_SCANCODE_LEFT = int(z'40000050')
+    integer(c_int), parameter :: SDL_SCANCODE_A = int(z'61')
+    integer(c_int), parameter :: SDL_SCANCODE_RIGHT = int(z'4000004F')
+    integer(c_int), parameter :: SDL_SCANCODE_D = int(z'64')
+    integer(c_int), parameter :: SDL_SCANCODE_SPACE = int(z'20')
 
 
     ! SDL Types
 
-    ! @brief SDL_Event is a union of all event types
+    !> @brief SDL_Event is a union of all event types
     type, bind(C) :: SDL_Event
         integer(c_int) :: type
         integer(c_int) :: timestamp
@@ -44,7 +45,7 @@ module sdl_wrapper
         character(kind=c_char) :: padding3(96)
     end type
 
-    ! @brief SDL_FRect is a float version of SDL_Rect
+    !> @brief SDL_FRect is a float version of SDL_Rect
     type, bind(C) :: SDL_FRect ! SDL_FRect is a float version of SDL_Rect
         real(c_float) :: x
         real(c_float) :: y
@@ -90,6 +91,8 @@ module sdl_wrapper
         !> @param y The y position of the window.
         !> @param w The width of the window.
         !> @param h The height of the window.
+        !> @param flags The flags to create the window with.
+        !> @return Returns a pointer to the created window.
         function SDL_CreateWindow(title, w, h, flags) bind(C, name='SDL_CreateWindow')
             import :: c_ptr, c_char, c_int
             character(kind=c_char), dimension(*) :: title
@@ -97,6 +100,11 @@ module sdl_wrapper
             type(c_ptr) :: SDL_CreateWindow
         end function
 
+        !> @brief Get the size of a window.
+        !> @param window The window to get the size of.
+        !> @param w The width of the window.
+        !> @param h The height of the window.
+        !> @return Returns 0 on success, -1 on error.
         function SDL_GetWindowSize(window, w, h) bind(C, name='SDL_GetWindowSize')
             import :: c_ptr, c_int
             type(c_ptr), value :: window
@@ -112,10 +120,12 @@ module sdl_wrapper
         end subroutine
 
         !> @brief Quit SDL and clean up all subsystems.
+        !> @details This should be called before the program exits.
         subroutine SDL_Quit() bind(C, name='SDL_Quit')
         end subroutine
 
         !> @brief Get the last error message as a string.
+        !> @return Returns a pointer to the error message string.
         function SDL_GetError() bind(C, name='SDL_GetError')
             import :: c_ptr
             type(c_ptr) :: SDL_GetError
@@ -124,6 +134,7 @@ module sdl_wrapper
         !> @brief Create a 2D rendering context for a window.
         !> @param window The window where rendering is displayed.
         !> @param name The name of the rendering driver to initialize, or NULL to let SDL choose one.
+        !> @return Returns a pointer to the created renderer.
         function SDL_CreateRenderer(window, name) bind(C, name='SDL_CreateRenderer')
             import :: c_ptr, c_char
             type(c_ptr), value :: window
@@ -137,6 +148,7 @@ module sdl_wrapper
         !> @param g The green value to use in the draw color.
         !> @param b The blue value to use in the draw color.
         !> @param a The alpha value to use in the draw color.
+        !> @return Returns 0 on success, -1 on error.
         function SDL_SetRenderDrawColor(renderer, r, g, b, a) bind(C, name='SDL_SetRenderDrawColor')
             import :: c_ptr, c_int8_t, c_int
             type(c_ptr), value :: renderer
@@ -144,9 +156,10 @@ module sdl_wrapper
             integer(c_int) :: SDL_SetRenderDrawColor
         end function
 
-        ! @brief Draw a rectangle on the current rendering target.
-        ! @param renderer The renderer to draw on.
-        ! @param rect The rectangle to draw.
+        !> @brief Draw a rectangle on the current rendering target.
+        !> @param renderer The renderer to draw on.
+        !> @param rect The rectangle to draw.
+        !> @return Returns 0 on success, -1 on error.
         function SDL_RenderRect(renderer, rect) bind(C, name='SDL_RenderRect')
             import :: c_ptr, c_int
             type(c_ptr), value :: renderer
@@ -154,9 +167,10 @@ module sdl_wrapper
             integer(c_int) :: SDL_RenderRect
         end function
 
-        ! @brief Fill a rectangle on the current rendering target with the drawing color.
-        ! @param renderer The renderer to draw on.
-        ! @param rect The rectangle to fill.
+        !> @brief Fill a rectangle on the current rendering target with the drawing color.
+        !> @param renderer The renderer to draw on.
+        !> @param rect The rectangle to fill.
+        !> @return Returns 0 on success, -1 on error.
         function SDL_RenderFillRect(renderer, rect) bind(C, name='SDL_RenderFillRect')
             import :: c_ptr, c_int
             type(c_ptr), value :: renderer
@@ -189,7 +203,9 @@ module sdl_wrapper
     end interface
   
     contains
-     !> @brief Convert SDL_FRect to C pointer
+    !> @brief Convert SDL_FRect to C pointer
+    !> @param rect The SDL_FRect to convert
+    !> @return Returns a C pointer to the SDL_FRect
     function c_loc_rect(rect) result(rect_ptr)
         type(SDL_FRect), target, intent(in) :: rect
         type(c_ptr) :: rect_ptr
@@ -197,6 +213,7 @@ module sdl_wrapper
     end function
     
     !> @brief Get the last SDL error message as a string.
+    !> @return Returns the last SDL error message as a string.
     function get_sdl_error()
         use iso_c_binding
         character(len=:), allocatable :: get_sdl_error
