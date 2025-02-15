@@ -10,7 +10,6 @@ module game_state
     use, intrinsic :: iso_c_binding
     use collision_utils
     implicit none
-
     type :: GameState
         type(Player) :: player
         type(Bullet), dimension(MAX_BULLETS) :: bullets
@@ -23,6 +22,7 @@ module game_state
         real(c_double) :: spawn_timer = 0.0
         real(c_double) :: difficulty = 0.5
         logical :: game_over = .false.
+        integer :: score = 0
     contains
         procedure :: init => init_game_state
         procedure :: handle_input => handle_game_input
@@ -31,6 +31,7 @@ module game_state
         procedure :: spawn_enemies => spawn_enemies
         procedure :: random_int => random_int
         procedure :: check_bullet_enemy_collisions => check_bullet_enemy_collisions
+        procedure :: display_final_score => display_final_score
     end type GameState
 
 contains
@@ -211,6 +212,19 @@ contains
         call check_bullet_enemy_collisions(this)
     end subroutine
 
+    !> @brief Display the final score
+    !> @param this The game state to display the score for
+    subroutine display_final_score(this)
+        class(GameState), intent(in) :: this
+        
+        print *, "========================="
+        print *, "      GAME OVER!"
+        print *, "========================="
+        print *, "Final Score:", this%score
+        print *, "Final Difficulty:", this%difficulty
+        print *, "========================="
+    end subroutine
+
     !> @brief Check for collisions between bullets and enemies
     !> @param this The game state to check collisions in
     subroutine check_bullet_enemy_collisions(this)
@@ -237,7 +251,12 @@ contains
                             this%bullets(i)%x + BULLET_WIDTH/2, bullet_old_y, &
                             this%bullets(i)%x + BULLET_WIDTH/2, this%bullets(i)%y, &
                             enemy_rect)) then
-                            ! Collision detected - deactivate both bullet and enemy
+                             ! Update score when enemy is destroyed
+                                this%score = this%score + &
+                                ENEMY_SCORE + &
+                                floor(SCORE_MULTIPLIER * this%difficulty)
+                            
+                            ! Deactivate bullet and enemy
                             this%bullets(i)%active = .false.
                             this%enemies(j)%active = .false.
                             exit  ! Bullet can only hit one enemy
@@ -247,4 +266,5 @@ contains
             end if
         end do
     end subroutine
+
 end module game_state

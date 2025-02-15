@@ -28,6 +28,11 @@ module game_types
     real(c_double), parameter :: SPAWN_INTERVAL = 3.0  ! Seconds between spawns
     real(c_double), parameter :: DIFFICULTY_INCREASE_RATE = 0.1  ! Increase per spawn
 
+ ! Score constants
+    integer, parameter :: ENEMY_SCORE = 100     ! Points for destroying an enemy
+    integer, parameter :: SCORE_MULTIPLIER = 10  ! Score multiplier based on difficulty
+
+
     !> @brief Player type
     !> @details Represents the player in the game
     type :: Player

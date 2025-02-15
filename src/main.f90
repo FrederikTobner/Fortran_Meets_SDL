@@ -60,7 +60,12 @@ program space_invaders
 
         ! Render game
         call render_game(renderer, game)
-
+        
+        ! Check for game over
+        if (game%game_over) then
+            call game%display_final_score()
+            running = 0
+        end if
     end do
 
     ! Cleanup
